@@ -5,8 +5,6 @@ import data_calling
 from turtle import *
 import statistics
 
-
-
 root1 = Tk()
 root1.wm_attributes()
 
@@ -30,16 +28,20 @@ frame = Label(borderwidth=5, relief="ridge",image=BACKGROUND, width=800, height=
 scoreDisplay = Label(background="black",foreground="white",text="Last Score",width=10,height=4)
 Label.place(scoreDisplay,x=380,y=5)
 
-class Menus():
-    def __init__(self,master,menuType):
 
+class Menus():
+
+    helpHistory = data_calling.Calls.CallNonEncryptedData("help_history.txt")
+    sessionHelp = helpHistory
+
+    def __init__(self,master,menuType):
         match menuType:
             case "defend":
                 self.score = time.time() - self.stampTime
                 scoreMs = int(self.score * 1000)
                 Label.config(scoreDisplay, text=(f"Speed\n{scoreMs} ms\n{scoreMs / 1000} sec"))
                 self.playButton.destroy()
-                dataSet = data_calling.Calls.CallData("click_data.txt",)
+                dataSet = data_calling.Calls.CallData("click_data.txt")
                 dataSet.append(scoreMs)
                 data_calling.Calls.WriteData("click_data.txt",dataSet)
             case "assault":
@@ -49,7 +51,7 @@ class Menus():
                 self.yesButton.destroy()
                 self.noButton.destroy()
                 self.message.destroy()
-                self.graphButten.destroy()
+                self.graphButton.destroy()
             case "clear_data_true":
                 data_calling.Calls.WriteData("click_data.txt","")# Clearing the click data file.
                 self.yesButton.destroy()
@@ -67,13 +69,19 @@ class Menus():
         self.master = master
         self.master.title("Reaction Speed App")
 
-        self.canvas = Label(width=40,height=10,text="Riley the griffiths is the actual creator, of this cheap app\nits so cheap that its free so enjoy playing it\n I like to taste things good and hard and i think I like to\n fight things hard, things like dificult shit\n I like a chalenge you know\n shit like hard core stuff and shit and that and all and stuff\n so yeah have a good one mate and cobba, I feel like this has been a very Interlectal Conversation here\n")
-        Label.place(self.canvas,x=400,y=100)
+        if Menus.helpHistory == "true" and Menus.sessionHelp == "true": ## this is checking if both the data from a file and RAM is currently set to true.        
+            self.helpMessage = Label(width=43,height=13,text='''Introduction Welcome!\nThis app tests your reaction speed in milliseconds, when\nyou press the "start" button an image\nof a suspicious man will pop up,\nget ready to click on the man as fast as possible when\nthe mans pose turns from calm to angry, click clear/yes\nto clear your history, click "graph"\nto see your results ploted on a\ngraph, for your average score click the "status" button,\nthe mean, median, mode and standard deviation of your\nscore, will be displayed, lets see how fast\nyou are. click "Go away" below if you don't\nwant to see this agian.''')
+            Label.place(self.helpMessage,x=500,y=80)
+            self.okButton = Button(width=5,height=2,text="OK",command=self.ExitHelp)
+            Button.place(self.okButton,x=665,y=280)
+            self.forgetButton = Button(width=8,height=2,text="GO AWAY",command=self.ForgetHelp)
+            Button.place(self.forgetButton,x=600,y=280)
+            Menus.sessionHelp = "false"
         
         self.startButton = Button(image=START_BUTTON,command=self.Start)
         Button.place(self.startButton,x=80,y=80)
-        self.graphButten = Button(image=GRAPH_BUTTEN,command=self.Graph)
-        Button.place(self.graphButten,x=80,y=120)
+        self.graphButton = Button(image=GRAPH_BUTTEN,command=self.Graph)
+        Button.place(self.graphButton,x=80,y=120)
         self.clearButton = Button(image = CLEAR_BUTTON,command=self.ClearDataMenu)
         Button.place(self.clearButton,x=80,y=160)
         self.statisticsButton = Button(image=STATUS_BUTTON,command=self.Statistics)
@@ -82,12 +90,12 @@ class Menus():
 
     def Start(self):
         self.startButton.destroy()
-        self.graphButten.destroy()
+        self.graphButton.destroy()
         self.clearButton.destroy()
         self.statisticsButton.destroy()
 
         self.playButton = Button(image=INACTIVE_BUTTON,command=lambda:Menus.Assault(self))
-        Button.place(self.playButton,x=320,y=100)
+        Button.place(self.playButton,x=320,y=80)
         duration = random.randint(1.0,10.0)
 
         self.playButton.after((1000 * duration),lambda:Menus.Defend(self))
@@ -100,7 +108,7 @@ class Menus():
     def Assault(self):
         
         self.assaultLabel = Label(image=CHECK_BUTTON)
-        Label.place(self.assaultLabel,x=320,y=100)
+        Label.place(self.assaultLabel,x=320,y=80)
 
         self.playButton.after((2000),lambda:Menus.__init__(self,self.master,"assault"))
     def Graph(self):
@@ -135,7 +143,7 @@ class Menus():
 
     def ClearDataMenu(self):
         self.startButton.destroy()
-        self.graphButten.destroy()
+        self.graphButton.destroy()
         self.clearButton.destroy()
         self.statisticsButton.destroy()
 
@@ -145,10 +153,24 @@ class Menus():
         Button.place(self.yesButton,x=260,y=180)
         self.noButton = Button(image=NO_BUTTON,command=lambda:Menus.__init__(self,self.master,"clear_data_false"))
         Button.place(self.noButton,x=420,y=180)
+
+    def ExitHelp(self):
+        self.okButton.destroy()
+        self.forgetButton.destroy()
+        self.helpMessage.destroy()        
+        
+
+    def ForgetHelp(self):
+        self.okButton.destroy()
+        self.forgetButton.destroy()
+        self.helpMessage.destroy()
+        data_calling.Calls.WriteNonEncryptedData("help_history.txt","false")
+        Menus.helpHistory = "false"
+
     
     def Statistics(self):
         self.startButton.destroy()
-        self.graphButten.destroy()
+        self.graphButton.destroy()
         self.clearButton.destroy()
         self.statisticsButton.destroy()
 
